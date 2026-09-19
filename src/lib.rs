@@ -1,12 +1,14 @@
 #![allow(nonstandard_style)]
 
-use serde::{Deserialize, Serialize};
+// Imports
 use std::{
-    collections::HashMap,
     net::{IpAddr, UdpSocket},
     sync::LazyLock,
 };
 
+pub mod peers;
+
+// Variables
 pub static SYNC_FOLDER_LOCATION: &str = "/home/ishank/bixsync";
 
 pub const PORT: u16 = 2637;
@@ -19,22 +21,3 @@ pub static SelfIpAddr: LazyLock<IpAddr> = LazyLock::new(|| {
     socket.connect("8.8.8.8:80").unwrap();
     socket.local_addr().unwrap().ip()
 });
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum SyncState {
-    Receiving,
-    Active,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Manifest {
-    pub files: HashMap<String, u64>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum SyncMessage {
-    RequestManifest,
-    Manifest(Manifest),
-    RequestFile(String),
-    FileContent(String, Vec<u8>),
-}
