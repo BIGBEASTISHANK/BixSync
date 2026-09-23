@@ -1,7 +1,7 @@
 use std::fs;
 
 pub mod broadcaster;
-pub mod discoveryListner;
+pub mod discoveryListener;
 
 // Load peers
 pub fn LoadPears() -> Vec<String> {

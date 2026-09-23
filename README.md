@@ -22,7 +22,7 @@ It's a file sync system, that syncs a folder to all the devices connected to the
 - **SyncFiles()**: This function is used to sync files to all the peers. Basically sending files to all other peers. It's a sender.
 - **TcpSyncServer()**: This function is also used to sync files but it recieves files insted of sending lik _SyncFiles()_. It's a reciever.
 - **Broadcaster()**: This function broadcast message (made specifically for bixsync) to all devices connected to the same network.
-- **DiscoveryListner()**: This function is used to listen for broadcasted messages and if they are from bixsync it will add them to the list of peers.
+- **DiscoveryListener()**: This function is used to listen for broadcasted messages and if they are from bixsync it will add them to the list of peers.
 
 ### Minor functions
 
