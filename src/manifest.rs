@@ -22,7 +22,7 @@ pub fn init() -> io::Result<()> {
     Ok(())
 }
 
-pub fn fileUpdated(path: &str) -> io::Result<()> {
+pub fn manifestUpdate(path: &str) -> io::Result<()> {
     let mut manifestFile = fs::File::open(crate::MANIFEST_FILE)?;
 
     let mut manifestBuffer = String::new();
@@ -36,36 +36,12 @@ pub fn fileUpdated(path: &str) -> io::Result<()> {
     if let Some(fileData) = manifest.iter_mut().find(|item| item.file == path) {
         fileData.updateId += 1;
     } else {
-        // Safeguard if file not present
+        // If not present add it
         manifest.push(crate::ManifestStructure {
             file: path.to_string(),
             updateId: 0,
         });
     }
-
-    let JSON = serde_json::to_string_pretty(&manifest)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-
-    fs::write(crate::MANIFEST_FILE, JSON)?;
-    Ok(())
-}
-
-pub fn fileAdded(path: &str) -> io::Result<()> {
-    let mut manifestFile = fs::File::open(crate::MANIFEST_FILE)?;
-
-    let mut manifestBuffer = String::new();
-    manifestFile.read_to_string(&mut manifestBuffer)?;
-
-    let mut manifest: Vec<crate::ManifestStructure> = serde_json::from_str(&manifestBuffer)
-        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
-    drop(manifestFile);
-
-    let NEW_FILE_DATA = crate::ManifestStructure {
-        file: path.to_string(),
-        updateId: 0,
-    };
-
-    manifest.push(NEW_FILE_DATA);
 
     let JSON = serde_json::to_string_pretty(&manifest)
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;

@@ -144,12 +144,8 @@ pub fn init() -> Result<()> {
             if let Some(EVENT) = pending.remove(&EVENT_PATH) {
                 if EVENT_PATH.exists() {
                     // Edit / create
-                    if EVENT.write {
-                        println!("Edit event: {:?}", EVENT_PATH);
-                        crate::manifest::fileUpdated(EVENT_PATH.to_str().unwrap())?;
-                    } else if EVENT.create {
-                        crate::manifest::fileAdded(EVENT_PATH.to_str().unwrap())?;
-                        println!("Create event: {:?}", EVENT_PATH);
+                    if EVENT.write || EVENT.create {
+                        crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap())?;
                     }
                 } else if EVENT.remove {
                     // Delete

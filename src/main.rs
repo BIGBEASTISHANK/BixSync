@@ -7,7 +7,6 @@ use std::{io, thread};
 fn main() -> io::Result<()> {
     // Manifest checking
     bixsync::manifest::init()?;
-    bixsync::manifest::fileUpdated("test.txt")?;
 
     // Knowing Peers
     thread::spawn(peers::broadcaster::init);
