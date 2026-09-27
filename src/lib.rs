@@ -8,12 +8,14 @@ use std::{
 
 pub mod peers;
 pub mod folderWatcher;
+pub mod manifest;
 
 // Variables
 pub static SYNC_FOLDER_LOCATION: &str = "/home/ishank/bixsync";
 
 pub const PORT: u16 = 2637;
 pub const PEERS_FILE: &str = "peers.json";
+pub const MANIFEST_FILE: &str = "manifest.json";
 
 pub static mut Peers: Vec<String> = Vec::new();
 
