@@ -6,6 +6,8 @@ use std::{
     sync::LazyLock,
 };
 
+use serde::{Deserialize, Serialize};
+
 pub mod peers;
 pub mod folderWatcher;
 pub mod manifest;
@@ -24,3 +26,10 @@ pub static SelfIpAddr: LazyLock<IpAddr> = LazyLock::new(|| {
     socket.connect("8.8.8.8:80").unwrap();
     socket.local_addr().unwrap().ip()
 });
+
+// Structure
+#[derive(Serialize, Deserialize)]
+pub struct ManifestStructure {
+    file: String,
+    updateId: i32,
+}

@@ -146,7 +146,9 @@ pub fn init() -> Result<()> {
                     // Edit / create
                     if EVENT.write {
                         println!("Edit event: {:?}", EVENT_PATH);
+                        crate::manifest::fileUpdated(EVENT_PATH.to_str().unwrap())?;
                     } else if EVENT.create {
+                        crate::manifest::fileAdded(EVENT_PATH.to_str().unwrap())?;
                         println!("Create event: {:?}", EVENT_PATH);
                     }
                 } else if EVENT.remove {
