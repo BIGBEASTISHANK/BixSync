@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 pub mod peers;
 pub mod folderWatcher;
 pub mod manifest;
+pub mod sync;
 
 // Variables
 pub static SYNC_FOLDER_LOCATION: &str = "/home/ishank/bixsync";
