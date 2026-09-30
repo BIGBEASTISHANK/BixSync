@@ -4,6 +4,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
     sync::mpsc,
+    thread,
     time::{Duration, Instant},
 };
 
@@ -145,7 +146,27 @@ pub fn init() -> Result<()> {
                 if EVENT_PATH.exists() {
                     // Edit / create
                     if EVENT.write || EVENT.create {
+                        println!("Update/Create event: {:?}", EVENT_PATH);
                         crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap())?;
+
+                        // Open peers list
+                        let PEERS = crate::peers::LoadPears();
+
+                        for iter in PEERS {
+                            let PATH = EVENT_PATH.to_str().unwrap().to_string();
+                            let PEER = iter.to_string();
+
+                            println!("Sending file to {}", PEER);
+
+                            thread::spawn(move || match crate::sync::sendFile::init(PATH, PEER.clone()) {
+                                Ok(_) => {}
+                                Err(E) => {
+                                    println!("Failed to send file to {}: {}", PEER, E);
+                                }
+                            });
+                        }
+
+                        println!("Initiated sync with all clients");
                     }
                 } else if EVENT.remove {
                     // Delete

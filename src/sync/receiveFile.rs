@@ -57,7 +57,7 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
 }
 
 pub fn init() -> io::Result<()> {
-    let listener = TcpListener::bind("0.0.0.0:4321")?;
+    let listener = TcpListener::bind(format!{"0.0.0.0:{}", crate::PORT})?;
 
     println!("Waiting for connection...");
 
