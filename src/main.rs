@@ -1,6 +1,6 @@
 #![allow(nonstandard_style)]
 
-use bixsync::{peers, folderWatcher};
+use bixsync::{peers, folderWatcher, sync};
 use std::{io, thread};
 
 // Main function
@@ -14,6 +14,9 @@ fn main() -> io::Result<()> {
 
     // Monitoring changes in filesystem
     thread::spawn(folderWatcher::init);
+
+    // Syncing
+    thread::spawn(sync::receiveFile::init);
 
     loop {
         thread::park();
