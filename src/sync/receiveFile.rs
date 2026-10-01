@@ -40,14 +40,14 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
     println!("manifest file: {} bytes", MANIFEST_SIZE);
 
     // Receive sync file
-    let mut syncFile = File::create("received_sync_file")?;
+    let mut syncFile = File::create("received_sync_file.bixsync")?;
 
     receiveFile(&mut tcp, &mut syncFile, SYNC_SIZE)?;
 
     println!("Sync file received");
 
     // Receive manifest file
-    let mut manifestFile = File::create("received_manifest_file")?;
+    let mut manifestFile = File::create("received_manifest_file.bixsync")?;
 
     receiveFile(&mut tcp, &mut manifestFile, MANIFEST_SIZE)?;
 

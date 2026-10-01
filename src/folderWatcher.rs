@@ -70,6 +70,7 @@ pub fn init() -> Result<()> {
                                 || name.ends_with(".swp")
                                 || name.ends_with(".swo")
                                 || name.ends_with(".tmp")
+                                || name.ends_with(".bixsync")
                         })
                     {
                         continue;
