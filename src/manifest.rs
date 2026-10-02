@@ -47,7 +47,7 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
 
         // If not present add it
         manifest.push(crate::ManifestStructure {
-            file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string(),
+            file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "").to_string(),
             updateId: INITIALIZE_UPDATE_ID,
         });
     }
