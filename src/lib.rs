@@ -29,7 +29,7 @@ pub static SelfIpAddr: LazyLock<IpAddr> = LazyLock::new(|| {
 });
 
 // Structure
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ManifestStructure {
     file: String,
     updateId: i32,

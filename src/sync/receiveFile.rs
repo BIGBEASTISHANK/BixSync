@@ -1,6 +1,8 @@
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::{self, Read, Write};
 use std::net::{TcpListener, TcpStream};
+
+use crate::sync::compareManifest;
 
 fn receiveFile(tcp: &mut TcpStream, file: &mut File, SIZE: u64) -> io::Result<()> {
     let mut remaining = SIZE;
@@ -60,19 +62,30 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
     println!("sync file: {} bytes", SYNC_SIZE);
     println!("manifest file: {} bytes", MANIFEST_SIZE);
 
-    // Receive sync file
-    let mut syncFile = File::create(format!("{}.bixsync", PATH_NAME))?;
-
-    receiveFile(&mut tcp, &mut syncFile, SYNC_SIZE)?;
-
-    println!("Sync file received");
-
     // Receive manifest file
     let mut manifestFile = File::create(format!("{}.bixsync", MANIFEST_NAME))?;
 
     receiveFile(&mut tcp, &mut manifestFile, MANIFEST_SIZE)?;
+    drop(manifestFile);
+    let mut manifestFile = File::open(format!("{}.bixsync", MANIFEST_NAME))?;
 
     println!("Manifest file received");
+
+    // Comparing manifest
+    match compareManifest::init(&mut manifestFile, PATH_NAME.to_string()) {
+        // Receive sync file
+        Ok(_) => {
+            let mut syncFile = File::create(format!("{}.bixsync", PATH_NAME))?;
+
+            receiveFile(&mut tcp, &mut syncFile, SYNC_SIZE)?;
+
+            println!("Sync file received");
+        }
+        Err(E) => {
+            println!("Failed to compare manifest: {E}");
+            return Err(E);
+        }
+    }
 
     Ok(())
 }
@@ -87,7 +100,9 @@ pub fn init() -> io::Result<()> {
 
         println!("Client connected");
 
-        handleClient(STREAM)?;
+        let _ = handleClient(STREAM).map_err(|E| {
+            println!("Error while handeling client: {}", E);
+        });
     }
 
     Ok(())

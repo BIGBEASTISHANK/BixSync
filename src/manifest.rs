@@ -22,7 +22,7 @@ pub fn init() -> io::Result<()> {
     Ok(())
 }
 
-pub fn manifestUpdate(path: &str) -> io::Result<()> {
+pub fn manifestUpdate(PATH: &str) -> io::Result<()> {
     let mut manifestFile = fs::File::open(crate::MANIFEST_FILE)?;
 
     let mut manifestBuffer = String::new();
@@ -33,12 +33,15 @@ pub fn manifestUpdate(path: &str) -> io::Result<()> {
     drop(manifestFile);
 
     // Finding data and updating data
-    if let Some(fileData) = manifest.iter_mut().find(|item| item.file == path) {
+    if let Some(fileData) = manifest
+        .iter_mut()
+        .find(|item| item.file == PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..])
+    {
         fileData.updateId += 1;
     } else {
         // If not present add it
         manifest.push(crate::ManifestStructure {
-            file: path.to_string(),
+            file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string(),
             updateId: 0,
         });
     }

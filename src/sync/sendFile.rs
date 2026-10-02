@@ -33,9 +33,9 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
 
     let mut buf = [0u8; 4096];
 
-    // Send sync file
+    // Send manifest file
     loop {
-        let ITER = syncfile.read(&mut buf)?;
+        let ITER = manifestFile.read(&mut buf)?;
 
         if ITER == 0 {
             break;
@@ -44,9 +44,9 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
         tcp.write_all(&buf[..ITER])?;
     }
 
-    // Send manifest file
+    // Send sync file
     loop {
-        let ITER = manifestFile.read(&mut buf)?;
+        let ITER = syncfile.read(&mut buf)?;
 
         if ITER == 0 {
             break;
