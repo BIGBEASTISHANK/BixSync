@@ -1,6 +1,6 @@
-use std::fs::{File, OpenOptions};
+use std::fs::{File};
 use std::io::{self, Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::{Shutdown, TcpListener, TcpStream};
 
 use crate::sync::compareManifest;
 
@@ -82,6 +82,7 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
             println!("Sync file received");
         }
         Err(E) => {
+            tcp.shutdown(Shutdown::Both)?;
             println!("Failed to compare manifest: {E}");
             return Err(E);
         }
