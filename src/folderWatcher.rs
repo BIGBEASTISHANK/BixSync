@@ -148,7 +148,7 @@ pub fn init() -> Result<()> {
                     // Edit / create
                     if EVENT.write || EVENT.create {
                         println!("Update/Create event: {:?}", EVENT_PATH);
-                        crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap())?;
+                        crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
 
                         // Open peers list
                         let PEERS = crate::peers::LoadPears();

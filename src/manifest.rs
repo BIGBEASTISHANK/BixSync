@@ -22,7 +22,7 @@ pub fn init() -> io::Result<()> {
     Ok(())
 }
 
-pub fn manifestUpdate(PATH: &str) -> io::Result<()> {
+pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
     let mut manifestFile = fs::File::open(crate::MANIFEST_FILE)?;
 
     let mut manifestBuffer = String::new();
@@ -39,10 +39,16 @@ pub fn manifestUpdate(PATH: &str) -> io::Result<()> {
     {
         fileData.updateId += 1;
     } else {
+        // updateId initialize
+        let INITIALIZE_UPDATE_ID = match updateId {
+            Some(ID) => ID,
+            None => 0,
+        };
+
         // If not present add it
         manifest.push(crate::ManifestStructure {
             file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string(),
-            updateId: 0,
+            updateId: INITIALIZE_UPDATE_ID,
         });
     }
 
