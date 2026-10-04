@@ -1,5 +1,5 @@
 use std::{
-    fs,
+    fs::{self, File},
     io::{self, Error, Read},
     path::Path,
 };
@@ -47,7 +47,10 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
 
         // If not present add it
         manifest.push(crate::ManifestStructure {
-            file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "").to_string(),
+            file: PATH
+                .to_string()
+                .replace(crate::SYNC_FOLDER_LOCATION, "")
+                .to_string(),
             updateId: INITIALIZE_UPDATE_ID,
         });
     }
@@ -56,5 +59,48 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
     fs::write(crate::MANIFEST_FILE, JSON)?;
+    Ok(())
+}
+
+// Manifest comparision
+pub fn compareManifest(incomingManifestFile: &mut File, syncFileName: String) -> io::Result<()> {
+    // Incoming manifest file
+    let mut incomingManifestFileContent = String::new();
+    incomingManifestFile.read_to_string(&mut incomingManifestFileContent)?;
+
+    let INCOMING_JSON: Vec<crate::ManifestStructure> =
+        serde_json::from_str(&incomingManifestFileContent)?;
+
+    // Self Manifest
+    let mut selfManifestFile = File::open(crate::MANIFEST_FILE)?;
+    let mut selfManifestFileContent = String::new();
+    selfManifestFile.read_to_string(&mut selfManifestFileContent)?;
+
+    let SELF_JSON: Vec<crate::ManifestStructure> = serde_json::from_str(&selfManifestFileContent)?;
+    match SELF_JSON.iter().find(|&x| x.file == syncFileName) {
+        Some(ENTRY) => {
+            for ITER in 0..INCOMING_JSON.len() {
+                if INCOMING_JSON[ITER].file == syncFileName {
+                    if INCOMING_JSON[ITER].updateId < ENTRY.updateId {
+                        return Err(io::Error::new(
+                            io::ErrorKind::Other,
+                            "Incoming manifest is older than self manifest",
+                        ));
+                    }
+                }
+            }
+        }
+        None => {
+            for ITER in 0..INCOMING_JSON.len() {
+                if INCOMING_JSON[ITER].file == syncFileName {
+                    crate::manifest::manifestUpdate(
+                        &syncFileName,
+                        Some(INCOMING_JSON[ITER].updateId),
+                    )?;
+                }
+            }
+        }
+    }
+
     Ok(())
 }

@@ -1,8 +1,8 @@
-use std::fs::{File};
+use std::fs::File;
 use std::io::{self, Read, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 
-use crate::sync::compareManifest;
+use crate::manifest::compareManifest;
 
 fn receiveFile(tcp: &mut TcpStream, file: &mut File, SIZE: u64) -> io::Result<()> {
     let mut remaining = SIZE;
@@ -72,7 +72,7 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
     println!("Manifest file received");
 
     // Comparing manifest
-    match compareManifest::init(&mut manifestFile, PATH_NAME.to_string()) {
+    match compareManifest(&mut manifestFile, PATH_NAME.to_string()) {
         // Receive sync file
         Ok(_) => {
             let mut syncFile = File::create(format!("{}.bixsync", PATH_NAME))?;
