@@ -106,7 +106,7 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
             ))?;
             fs::rename(
                 format!("{}/{}.bixsync", crate::SYNC_FOLDER_LOCATION, PATH_NAME),
-                PATH_NAME,
+                format!("{}/{}", crate::SYNC_FOLDER_LOCATION, PATH_NAME),
             )?;
 
             println!("Sync file received");
