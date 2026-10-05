@@ -147,19 +147,31 @@ pub fn init() -> Result<()> {
                 if EVENT_PATH.exists() {
                     // Edit / create
                     if EVENT.write || EVENT.create {
-                        println!("Update/Create event: {:?}", EVENT_PATH);
+                        // Check if file should be ignored
+                        let SHOULD_IGNORE = {
+                            let mut IGNORE = crate::IgnoreFileSync.lock().unwrap();
 
-                        for ITER in 0..crate::IgnoreFileSync.lock().unwrap().len() {
-                            if EVENT_PATH
+                            let EVENT_PATH = EVENT_PATH
                                 .to_str()
                                 .unwrap()
-                                .replace(crate::SYNC_FOLDER_LOCATION, "")[1..]
-                                == crate::IgnoreFileSync.lock().unwrap()[ITER]
+                                .replace(crate::SYNC_FOLDER_LOCATION, "")
+                                .trim_start_matches('/')
+                                .to_string();
+
+                            if let Some(INDEX) = IGNORE.iter().position(|path| path == &EVENT_PATH)
                             {
-                                crate::IgnoreFileSync.lock().unwrap().remove(ITER);
-                                continue;
+                                IGNORE.remove(INDEX);
+                                true
+                            } else {
+                                false
                             }
+                        };
+
+                        if SHOULD_IGNORE {
+                            continue;
                         }
+
+                        println!("Update/Create event: {:?}", EVENT_PATH);
 
                         crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
 
