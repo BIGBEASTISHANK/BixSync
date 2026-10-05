@@ -69,11 +69,19 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
     println!("manifest file: {} bytes", MANIFEST_SIZE);
 
     // Receive manifest file
-    let mut manifestFile = File::create(format!("{}.bixsync", MANIFEST_NAME))?;
+    let mut manifestFile = File::create(format!(
+        "{}/{}.bixsync",
+        crate::SYNC_FOLDER_LOCATION,
+        MANIFEST_NAME
+    ))?;
 
     receiveFile(&mut tcp, &mut manifestFile, MANIFEST_SIZE)?;
     drop(manifestFile);
-    let mut manifestFile = File::open(format!("{}.bixsync", MANIFEST_NAME))?;
+    let mut manifestFile = File::open(format!(
+        "{}/{}.bixsync",
+        crate::SYNC_FOLDER_LOCATION,
+        MANIFEST_NAME
+    ))?;
 
     println!("Manifest file received");
 
@@ -81,14 +89,25 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
     match compareManifest(&mut manifestFile, PATH_NAME.to_string()) {
         // Receive sync file
         Ok(_) => {
-            let mut syncFile = File::create(format!("{}.bixsync", PATH_NAME))?;
+            let mut syncFile = File::create(format!(
+                "{}/{}.bixsync",
+                crate::SYNC_FOLDER_LOCATION,
+                PATH_NAME
+            ))?;
 
             // Receiving sync file
             receiveFile(&mut tcp, &mut syncFile, SYNC_SIZE)?;
 
             // Deleting manifest file & renaming file to original
-            fs::remove_file(format!("{}.bixsync", MANIFEST_NAME))?;
-            fs::rename(format!("{}.bixsync", PATH_NAME), PATH_NAME)?;
+            fs::remove_file(format!(
+                "{}/{}.bixsync",
+                crate::SYNC_FOLDER_LOCATION,
+                MANIFEST_NAME
+            ))?;
+            fs::rename(
+                format!("{}/{}.bixsync", crate::SYNC_FOLDER_LOCATION, PATH_NAME),
+                PATH_NAME,
+            )?;
 
             println!("Sync file received");
         }
@@ -96,8 +115,16 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
             tcp.shutdown(Shutdown::Both)?;
 
             // Deleting files
-            fs::remove_file(format!("{}.bixsync", PATH_NAME))?;
-            fs::remove_file(format!("{}.bixsync", MANIFEST_NAME))?;
+            fs::remove_file(format!(
+                "{}/{}.bixsync",
+                crate::SYNC_FOLDER_LOCATION,
+                PATH_NAME
+            ))?;
+            fs::remove_file(format!(
+                "{}/{}.bixsync",
+                crate::SYNC_FOLDER_LOCATION,
+                MANIFEST_NAME
+            ))?;
 
             println!("Failed to compare manifest: {E}");
             return Err(E);
