@@ -148,6 +148,19 @@ pub fn init() -> Result<()> {
                     // Edit / create
                     if EVENT.write || EVENT.create {
                         println!("Update/Create event: {:?}", EVENT_PATH);
+
+                        for ITER in 0..crate::IgnoreFileSync.lock().unwrap().len() {
+                            if EVENT_PATH
+                                .to_str()
+                                .unwrap()
+                                .replace(crate::SYNC_FOLDER_LOCATION, "")[1..]
+                                == crate::IgnoreFileSync.lock().unwrap()[ITER]
+                            {
+                                crate::IgnoreFileSync.lock().unwrap().remove(ITER);
+                                continue;
+                            }
+                        }
+
                         crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
 
                         // Open peers list
@@ -159,10 +172,12 @@ pub fn init() -> Result<()> {
 
                             println!("Sending file to {}", PEER);
 
-                            thread::spawn(move || match crate::sync::sendFile::init(PATH, PEER.clone()) {
-                                Ok(_) => {}
-                                Err(E) => {
-                                    println!("Failed to send file to {}: {}", PEER, E);
+                            thread::spawn(move || {
+                                match crate::sync::sendFile::init(PATH, PEER.clone()) {
+                                    Ok(_) => {}
+                                    Err(E) => {
+                                        println!("Failed to send file to {}: {}", PEER, E);
+                                    }
                                 }
                             });
                         }

@@ -2,8 +2,7 @@
 
 // Imports
 use std::{
-    net::{IpAddr, UdpSocket},
-    sync::LazyLock,
+    net::{IpAddr, UdpSocket}, sync::{LazyLock, Mutex},
 };
 
 use serde::{Deserialize, Serialize};
@@ -21,6 +20,8 @@ pub const PEERS_FILE: &str = "peers.json";
 pub const MANIFEST_FILE: &str = "manifest.json";
 
 pub static mut Peers: Vec<String> = Vec::new();
+
+pub static IgnoreFileSync: Mutex<Vec<String>> = Mutex::new(vec![]);
 
 pub static SelfIpAddr: LazyLock<IpAddr> = LazyLock::new(|| {
     let socket = UdpSocket::bind("0.0.0.0:0").unwrap();

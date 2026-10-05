@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 
@@ -59,6 +59,12 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
     println!("Path Name: {:?}", PATH_NAME);
     println!("Manifest Name: {:?}", MANIFEST_NAME);
 
+    // Setting it to ignore file sync
+    crate::IgnoreFileSync
+        .lock()
+        .unwrap()
+        .push(PATH_NAME.to_string());
+
     println!("sync file: {} bytes", SYNC_SIZE);
     println!("manifest file: {} bytes", MANIFEST_SIZE);
 
@@ -77,12 +83,22 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
         Ok(_) => {
             let mut syncFile = File::create(format!("{}.bixsync", PATH_NAME))?;
 
+            // Receiving sync file
             receiveFile(&mut tcp, &mut syncFile, SYNC_SIZE)?;
+
+            // Deleting manifest file & renaming file to original
+            fs::remove_file(format!("{}.bixsync", MANIFEST_NAME))?;
+            fs::rename(format!("{}.bixsync", PATH_NAME), PATH_NAME)?;
 
             println!("Sync file received");
         }
         Err(E) => {
             tcp.shutdown(Shutdown::Both)?;
+
+            // Deleting files
+            fs::remove_file(format!("{}.bixsync", PATH_NAME))?;
+            fs::remove_file(format!("{}.bixsync", MANIFEST_NAME))?;
+
             println!("Failed to compare manifest: {E}");
             return Err(E);
         }
