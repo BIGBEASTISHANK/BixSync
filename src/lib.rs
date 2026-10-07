@@ -1,15 +1,17 @@
 #![allow(nonstandard_style)]
 
 // Imports
+use colored::{Color, Colorize};
 use std::{
-    net::{IpAddr, UdpSocket}, sync::{LazyLock, Mutex},
+    net::{IpAddr, UdpSocket},
+    sync::{LazyLock, Mutex},
 };
 
 use serde::{Deserialize, Serialize};
 
-pub mod peers;
 pub mod folderWatcher;
 pub mod manifest;
+pub mod peers;
 pub mod sync;
 
 // Variables
@@ -29,9 +31,30 @@ pub static SelfIpAddr: LazyLock<IpAddr> = LazyLock::new(|| {
     socket.local_addr().unwrap().ip()
 });
 
+// Debug Variables
+#[cfg(debug_assertions)]
+static ThreadCounter: Mutex<i8> = Mutex::new(0);
+
 // Structure
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ManifestStructure {
     file: String,
     updateId: i32,
+}
+
+// Functions
+#[cfg(debug_assertions)]
+pub fn DebugLog(msg: &str, color: Color) {
+    println!("{} {}","[DEBUG]".color(Color::Blue), msg.color(color));
+}
+
+#[cfg(debug_assertions)]
+pub fn ThreadReady() {
+    let mut count = ThreadCounter.lock().unwrap();
+    *count += 1;
+
+    if *count == 4 {
+        // Debug Logsc
+        DebugLog("Thread starging finished", Color::Yellow);
+    }
 }

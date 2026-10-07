@@ -137,7 +137,9 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
 pub fn init() -> io::Result<()> {
     let listener = TcpListener::bind(format! {"0.0.0.0:{}", crate::PORT})?;
 
+    // Debug Logs
     println!("Waiting for connection...");
+    crate::ThreadReady();
 
     for STREAM in listener.incoming() {
         let STREAM = STREAM?;

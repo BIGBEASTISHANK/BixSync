@@ -3,7 +3,9 @@ use std::{net::UdpSocket, thread, time::Duration};
 pub fn init() {
     let SOCKET = UdpSocket::bind("0.0.0.0:0").unwrap();
 
+    // Debug Logs
     println!("UDP broadcaster started");
+    crate::ThreadReady();
 
     SOCKET.set_broadcast(true).unwrap();
 

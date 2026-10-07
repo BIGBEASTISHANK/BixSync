@@ -1,5 +1,7 @@
 use std::net::UdpSocket;
 
+use colored::Color;
+
 use crate::peers;
 
 pub fn init() {
@@ -9,7 +11,9 @@ pub fn init() {
 
     let mut buf = [0u8; 1024];
 
+    // Debug Logs
     println!("UDP listener started");
+    crate::ThreadReady();
 
     loop {
         let (SIZE, SENDER) = SOCKET.recv_from(&mut buf).unwrap();
@@ -26,7 +30,7 @@ pub fn init() {
             continue;
         }
 
-        println!("Discovered {} -> {}", IP, MSG);
+        crate::DebugLog(&format!("Discovered {} -> {}", IP, MSG), Color::Green);
 
         peers.push(IP);
 

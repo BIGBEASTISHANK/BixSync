@@ -1,22 +1,25 @@
 #![allow(nonstandard_style)]
 
 use bixsync::{folderWatcher, peers, sync};
+use colored::Color;
 use std::{io, thread};
 
 // Main function
 fn main() -> io::Result<()> {
+    // Debug Logs
+    bixsync::DebugLog(
+        "Starting all required threads & initial check",
+        Color::Yellow,
+    );
+
     // Manifest checking
     bixsync::manifest::init()?;
 
-    // Knowing Peers
-    let BROADCASTER_THREAD = thread::spawn(peers::broadcaster::init);
-    let DISCOVERY_LISTNER_THREAD = thread::spawn(peers::discoveryListener::init);
-
-    // Monitoring changes in filesystem
-    let FOLDER_WATCHER_THREAD = thread::spawn(folderWatcher::init);
-
-    // Syncing
-    let RECEIVE_FILE_THREAD = thread::spawn(sync::receiveFile::init);
+    // Starting threads
+    let BROADCASTER_THREAD = thread::spawn(peers::broadcaster::init); // Knowing Peers (Broadcaster)
+    let DISCOVERY_LISTNER_THREAD = thread::spawn(peers::discoveryListener::init); // Knowing Peers (Listner)
+    let FOLDER_WATCHER_THREAD = thread::spawn(folderWatcher::init); // Monitoring changes in filesystem
+    let RECEIVE_FILE_THREAD = thread::spawn(sync::receiveFile::init); // Syncing
 
     // Log when thread is finished
     match BROADCASTER_THREAD.join() {

@@ -1,3 +1,4 @@
+use colored::Color;
 use notify::{Event, RecursiveMode, Result, Watcher};
 use std::{
     collections::HashMap,
@@ -17,9 +18,6 @@ struct PendingEvent {
 }
 
 pub fn init() -> Result<()> {
-    // Debug message
-    println!("FolderWatcher started");
-
     // Folder checker / creator
     let PATH = Path::new(crate::SYNC_FOLDER_LOCATION);
 
@@ -32,6 +30,10 @@ pub fn init() -> Result<()> {
 
     let mut watcher = notify::recommended_watcher(tx)?;
     watcher.watch(PATH, RecursiveMode::NonRecursive)?;
+
+    // Debug message
+    println!("FolderWatcher started");
+    crate::ThreadReady();
 
     // Pending events
     let mut pending: HashMap<PathBuf, PendingEvent> = HashMap::new();
@@ -120,7 +122,7 @@ pub fn init() -> Result<()> {
 
             // Watcher reported an error
             Ok(Err(e)) => {
-                println!("Watch error: {:?}", e);
+                crate::DebugLog(&format!("Watch error: {:?}", e), Color::Red);
             }
 
             // No event arrived before the timeout
@@ -171,6 +173,10 @@ pub fn init() -> Result<()> {
                             continue;
                         }
 
+                        // Debug Logs
+                        println!("##########");
+                        crate::DebugLog("Event Captured. Processing...", Color::Yellow);
+                        println!("##########");
                         println!("Update/Create event: {:?}", EVENT_PATH);
 
                         crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
@@ -194,11 +200,17 @@ pub fn init() -> Result<()> {
                             });
                         }
 
+                        // Debug Logs
                         println!("Initiated sync with all clients");
+                        println!("##########");
                     }
                 } else if EVENT.remove {
-                    // Delete
+                    // Debug Logs
+                    println!("##########");
+                    crate::DebugLog("Event Captured. Processing...", Color::Yellow);
+                    println!("##########");
                     println!("Delete event: {:?}", EVENT_PATH);
+                    println!("##########");
                 }
             }
         }
