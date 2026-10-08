@@ -29,23 +29,22 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
         &format!("Started sending file to {}", ipAddr),
         Color::Yellow,
     );
-    println!("###############");
 
     // Send sizes first
     tcp.write_all(&SYNC_SIZE.to_be_bytes())?;
     crate::DebugLog(
         format!("Sent file size: {} bytes", SYNC_SIZE).as_str(),
-        Color::Yellow,
+        Color::Green,
     );
     tcp.write_all(&MANIFEST_SIZE.to_be_bytes())?;
     crate::DebugLog(
         format!("Sent manifest size: {} bytes", MANIFEST_SIZE).as_str(),
-        Color::Yellow,
+        Color::Green,
     );
     tcp.write_all(&FILE_NAME.len().to_be_bytes())?;
     crate::DebugLog(
         format!("Sent file name size: {} bytes", FILE_NAME.len()).as_str(),
-        Color::Yellow,
+        Color::Green,
     );
     tcp.write_all(&crate::MANIFEST_FILE.len().to_be_bytes())?;
     crate::DebugLog(
@@ -54,19 +53,19 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
             crate::MANIFEST_FILE.len()
         )
         .as_str(),
-        Color::Yellow,
+        Color::Green,
     );
 
     // Sending File names
     tcp.write_all(FILE_NAME.as_bytes())?;
     crate::DebugLog(
         format!("Sent file name: {}", FILE_NAME).as_str(),
-        Color::Yellow,
+        Color::Green,
     );
     tcp.write_all(crate::MANIFEST_FILE.as_bytes())?;
     crate::DebugLog(
         format!("Sent manifest name: {}", crate::MANIFEST_FILE).as_str(),
-        Color::Yellow,
+        Color::Green,
     );
 
     let mut buf = [0u8; 4096];
@@ -81,6 +80,7 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
 
         tcp.write_all(&buf[..ITER])?;
     }
+    crate::DebugLog("Manifest file sent", Color::Green);
 
     // Send sync file
     loop {
@@ -92,6 +92,11 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
 
         tcp.write_all(&buf[..ITER])?;
     }
+    crate::DebugLog("Sync file sent", Color::Green);
+
+    // Debug logs
+    crate::DebugLog(&format!("Sending to {} completed", ipAddr), Color::Yellow);
+    println!();
 
     Ok(())
 }

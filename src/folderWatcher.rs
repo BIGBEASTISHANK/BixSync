@@ -176,7 +176,6 @@ pub fn init() -> Result<()> {
                         // Debug Logs
                         println!();
                         crate::DebugLog("Event Captured. Processing...", Color::Yellow);
-                        println!("###############");
                         println!("Update/Create event: {:?}", EVENT_PATH);
 
                         crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
@@ -201,15 +200,15 @@ pub fn init() -> Result<()> {
                         }
 
                         // Debug Logs
-                        crate::DebugLog("Initiated sync with all clients", Color::Yellow);
-                        println!("###############");
+                        crate::DebugLog("Initiated sync with all online clients", Color::Yellow);
+                        println!();
+
                     }
                 } else if EVENT.remove {
                     // Debug Logs
                     println!();
                     crate::DebugLog("Event Captured. Processing...", Color::Yellow);
                     println!("Delete event: {:?}", EVENT_PATH);
-                    println!("###############");
                 }
             }
         }

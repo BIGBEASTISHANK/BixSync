@@ -30,6 +30,7 @@ pub fn init() {
             continue;
         }
 
+        // Debug Log
         crate::DebugLog(&format!("Discovered {} -> {}", IP, MSG), Color::Green);
 
         peers.push(IP);
