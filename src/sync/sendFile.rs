@@ -3,6 +3,8 @@ use std::io::{self, Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
 use std::time::Duration;
 
+use colored::Color;
+
 pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
     let mut syncfile = File::open(&PATH)?;
     let mut manifestFile = File::open(&crate::MANIFEST_FILE)?;
@@ -20,16 +22,52 @@ pub fn init(PATH: String, ipAddr: String) -> io::Result<()> {
     let MANIFEST_SIZE = manifestFile.metadata()?.len();
 
     let FILE_NAME = &PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..];
-    
+
+    // Debug logs
+    println!();
+    crate::DebugLog(
+        &format!("Started sending file to {}", ipAddr),
+        Color::Yellow,
+    );
+    println!("###############");
+
     // Send sizes first
     tcp.write_all(&SYNC_SIZE.to_be_bytes())?;
+    crate::DebugLog(
+        format!("Sent file size: {} bytes", SYNC_SIZE).as_str(),
+        Color::Yellow,
+    );
     tcp.write_all(&MANIFEST_SIZE.to_be_bytes())?;
+    crate::DebugLog(
+        format!("Sent manifest size: {} bytes", MANIFEST_SIZE).as_str(),
+        Color::Yellow,
+    );
     tcp.write_all(&FILE_NAME.len().to_be_bytes())?;
+    crate::DebugLog(
+        format!("Sent file name size: {} bytes", FILE_NAME.len()).as_str(),
+        Color::Yellow,
+    );
     tcp.write_all(&crate::MANIFEST_FILE.len().to_be_bytes())?;
+    crate::DebugLog(
+        format!(
+            "Sent manifest name size: {} bytes",
+            crate::MANIFEST_FILE.len()
+        )
+        .as_str(),
+        Color::Yellow,
+    );
 
     // Sending File names
     tcp.write_all(FILE_NAME.as_bytes())?;
+    crate::DebugLog(
+        format!("Sent file name: {}", FILE_NAME).as_str(),
+        Color::Yellow,
+    );
     tcp.write_all(crate::MANIFEST_FILE.as_bytes())?;
+    crate::DebugLog(
+        format!("Sent manifest name: {}", crate::MANIFEST_FILE).as_str(),
+        Color::Yellow,
+    );
 
     let mut buf = [0u8; 4096];
 

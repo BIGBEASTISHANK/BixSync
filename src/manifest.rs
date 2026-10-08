@@ -6,7 +6,7 @@ use std::{
 
 pub fn init() -> io::Result<()> {
     // Debug message
-    println!("Manifest checking started...");
+    println!("Manifest checking started");
 
     let PATH = Path::new(crate::MANIFEST_FILE);
 

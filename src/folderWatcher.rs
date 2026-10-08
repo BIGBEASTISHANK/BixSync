@@ -174,9 +174,9 @@ pub fn init() -> Result<()> {
                         }
 
                         // Debug Logs
-                        println!("##########");
+                        println!();
                         crate::DebugLog("Event Captured. Processing...", Color::Yellow);
-                        println!("##########");
+                        println!("###############");
                         println!("Update/Create event: {:?}", EVENT_PATH);
 
                         crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
@@ -194,23 +194,22 @@ pub fn init() -> Result<()> {
                                 match crate::sync::sendFile::init(PATH, PEER.clone()) {
                                     Ok(_) => {}
                                     Err(E) => {
-                                        println!("Failed to send file to {}: {}", PEER, E);
+                                        crate::DebugLog(&format!("Failed to send file to {}: {}", PEER, E), Color::Red);
                                     }
                                 }
                             });
                         }
 
                         // Debug Logs
-                        println!("Initiated sync with all clients");
-                        println!("##########");
+                        crate::DebugLog("Initiated sync with all clients", Color::Yellow);
+                        println!("###############");
                     }
                 } else if EVENT.remove {
                     // Debug Logs
-                    println!("##########");
+                    println!();
                     crate::DebugLog("Event Captured. Processing...", Color::Yellow);
-                    println!("##########");
                     println!("Delete event: {:?}", EVENT_PATH);
-                    println!("##########");
+                    println!("###############");
                 }
             }
         }
