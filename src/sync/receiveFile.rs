@@ -119,7 +119,7 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
             let mut syncFile = File::create(format!(
                 "{}/{}.bixsync",
                 crate::SYNC_FOLDER_LOCATION,
-                PATH_NAME
+                PATH_NAME.replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string()
             ))?;
 
             // Receiving sync file

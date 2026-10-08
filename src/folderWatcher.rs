@@ -178,7 +178,14 @@ pub fn init() -> Result<()> {
                         crate::DebugLog("Event Captured. Processing...", Color::Yellow);
                         println!("Update/Create event: {:?}", EVENT_PATH);
 
-                        crate::manifest::manifestUpdate(EVENT_PATH.to_str().unwrap(), None)?;
+                        crate::manifest::manifestUpdate(
+                            &EVENT_PATH
+                                .to_str()
+                                .unwrap()
+                                .replace(crate::SYNC_FOLDER_LOCATION, "")[1..]
+                                .to_string(),
+                            None,
+                        )?;
 
                         // Open peers list
                         let PEERS = crate::peers::LoadPears();
@@ -193,7 +200,10 @@ pub fn init() -> Result<()> {
                                 match crate::sync::sendFile::init(PATH, PEER.clone()) {
                                     Ok(_) => {}
                                     Err(E) => {
-                                        crate::DebugLog(&format!("Failed to send file to {}: {}", PEER, E), Color::Red);
+                                        crate::DebugLog(
+                                            &format!("Failed to send file to {}: {}", PEER, E),
+                                            Color::Red,
+                                        );
                                     }
                                 }
                             });
@@ -202,7 +212,6 @@ pub fn init() -> Result<()> {
                         // Debug Logs
                         crate::DebugLog("Initiated sync with all online clients", Color::Yellow);
                         println!();
-
                     }
                 } else if EVENT.remove {
                     // Debug Logs

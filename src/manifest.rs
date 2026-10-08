@@ -37,11 +37,11 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
     // Finding data and updating data
     if let Some(fileData) = manifest
         .iter_mut()
-        .find(|item| item.file == PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string())
+        .find(|item| item.file == PATH)
     {
-        fileData.updateId += match updateId {
-            Some(ID) => ID,
-            None => 1,
+        match updateId {
+            Some(ID) => fileData.updateId = ID,
+            None => fileData.updateId += 1,
         };
 
         // Debug log
@@ -58,7 +58,7 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
 
         // If not present add it
         manifest.push(crate::ManifestStructure {
-            file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string(),
+            file: PATH.to_string(),
             updateId: INITIALIZE_UPDATE_ID,
         });
 
@@ -66,9 +66,7 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
         crate::DebugLog(
             &format!(
                 "Added manifest for {}",
-                PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..]
-                    .to_string()
-                    .to_string()
+                PATH
             ),
             Color::Magenta,
         );
@@ -110,15 +108,8 @@ pub fn compareManifest(incomingManifestFile: &mut File, syncFileName: String) ->
             }
         }
         None => {
-            for ITER in 0..INCOMING_JSON.len() {
-                if INCOMING_JSON[ITER].file == syncFileName {
-                    crate::manifest::manifestUpdate(
-                        &syncFileName,
-                        Some(INCOMING_JSON[ITER].updateId),
-                    )?;
-                } else {
-                    crate::manifest::manifestUpdate(&syncFileName, None)?;
-                }
+            if let Some(incoming) = INCOMING_JSON.iter().find(|x| x.file == syncFileName) {
+                crate::manifest::manifestUpdate(&syncFileName, Some(incoming.updateId))?;
             }
         }
     }
