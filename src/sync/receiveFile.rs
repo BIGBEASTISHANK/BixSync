@@ -151,11 +151,6 @@ fn handleClient(mut tcp: TcpStream) -> io::Result<()> {
             fs::remove_file(format!(
                 "{}/{}.bixsync",
                 crate::SYNC_FOLDER_LOCATION,
-                PATH_NAME
-            ))?;
-            fs::remove_file(format!(
-                "{}/{}.bixsync",
-                crate::SYNC_FOLDER_LOCATION,
                 MANIFEST_NAME
             ))?;
 

@@ -35,10 +35,7 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
     drop(manifestFile);
 
     // Finding data and updating data
-    if let Some(fileData) = manifest
-        .iter_mut()
-        .find(|item| item.file == PATH)
-    {
+    if let Some(fileData) = manifest.iter_mut().find(|item| item.file == PATH) {
         match updateId {
             Some(ID) => fileData.updateId = ID,
             None => fileData.updateId += 1,
@@ -63,13 +60,7 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
         });
 
         // Debug logs
-        crate::DebugLog(
-            &format!(
-                "Added manifest for {}",
-                PATH
-            ),
-            Color::Magenta,
-        );
+        crate::DebugLog(&format!("Added manifest for {}", PATH), Color::Magenta);
     }
 
     let JSON = serde_json::to_string_pretty(&manifest)
@@ -103,13 +94,18 @@ pub fn compareManifest(incomingManifestFile: &mut File, syncFileName: String) ->
                             io::ErrorKind::Other,
                             "Incoming manifest is older than self manifest",
                         ));
+                    } else {
+                        crate::manifest::manifestUpdate(
+                            &syncFileName,
+                            Some(INCOMING_JSON[ITER].updateId),
+                        )?;
                     }
                 }
             }
         }
         None => {
-            if let Some(incoming) = INCOMING_JSON.iter().find(|x| x.file == syncFileName) {
-                crate::manifest::manifestUpdate(&syncFileName, Some(incoming.updateId))?;
+            if let Some(DATA) = INCOMING_JSON.iter().find(|x| x.file == syncFileName) {
+                crate::manifest::manifestUpdate(&syncFileName, Some(DATA.updateId))?;
             }
         }
     }
