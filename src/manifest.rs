@@ -4,6 +4,8 @@ use std::{
     path::Path,
 };
 
+use colored::Color;
+
 pub fn init() -> io::Result<()> {
     // Debug message
     println!("Manifest checking started");
@@ -35,9 +37,18 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
     // Finding data and updating data
     if let Some(fileData) = manifest
         .iter_mut()
-        .find(|item| item.file == PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..])
+        .find(|item| item.file == PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string())
     {
-        fileData.updateId += 1;
+        fileData.updateId += match updateId {
+            Some(ID) => ID,
+            None => 1,
+        };
+
+        // Debug log
+        crate::DebugLog(
+            &format!("Update manifest for {}", fileData.file),
+            Color::Magenta,
+        );
     } else {
         // updateId initialize
         let INITIALIZE_UPDATE_ID = match updateId {
@@ -47,12 +58,20 @@ pub fn manifestUpdate(PATH: &str, updateId: Option<i32>) -> io::Result<()> {
 
         // If not present add it
         manifest.push(crate::ManifestStructure {
-            file: PATH
-                .to_string()
-                .replace(crate::SYNC_FOLDER_LOCATION, "")
-                .to_string(),
+            file: PATH.to_string().replace(crate::SYNC_FOLDER_LOCATION, "")[1..].to_string(),
             updateId: INITIALIZE_UPDATE_ID,
         });
+
+        // Debug logs
+        crate::DebugLog(
+            &format!(
+                "Added manifest for {}",
+                PATH.replace(crate::SYNC_FOLDER_LOCATION, "")[1..]
+                    .to_string()
+                    .to_string()
+            ),
+            Color::Magenta,
+        );
     }
 
     let JSON = serde_json::to_string_pretty(&manifest)
@@ -97,6 +116,8 @@ pub fn compareManifest(incomingManifestFile: &mut File, syncFileName: String) ->
                         &syncFileName,
                         Some(INCOMING_JSON[ITER].updateId),
                     )?;
+                } else {
+                    crate::manifest::manifestUpdate(&syncFileName, None)?;
                 }
             }
         }
